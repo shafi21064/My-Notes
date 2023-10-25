@@ -90,7 +90,7 @@ class _EditScreenState extends State<EditScreen> {
             debugPrint("success"),
             debugPrint(widget.note.toString()),
             Navigator.pushAndRemoveUntil(
-                context, MaterialPageRoute(builder: (context)=> const HomeScreen()),
+                context, MaterialPageRoute(builder: (context)=>  HomeScreen()),
                     (route) => false)
           }).onError((error, stackTrace) => {
             debugPrint("failed")

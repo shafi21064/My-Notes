@@ -80,7 +80,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               {debugPrint("failed to add database")});
               Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  MaterialPageRoute(builder: (context) =>  HomeScreen()),
                       (route) => false);
             },
             label: const Text('Save'),

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:notes/src/controller/home_controller.dart';
 import 'package:notes/src/data/constants/colors.dart';
 import 'package:notes/src/data/utils/database_helper.dart';
 import 'package:notes/src/moduls/add/view/add_task_screen.dart';
@@ -7,72 +8,33 @@ import 'package:notes/src/moduls/edit/view/edit.dart';
 import 'package:notes/src/moduls/home/local_widget/header_part.dart';
 import 'package:notes/src/moduls/home/local_widget/note_design.dart';
 import 'package:notes/src/moduls/home/local_widget/seach_bar.dart';
+import 'package:provider/provider.dart';
 import '../../../data/models/note_model.dart';
 
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+   const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Note> data = [];
-  List <Note>filteredData = [];
-  DBHelper dbHelper = DBHelper();
-  bool sorted = false;
+   DBHelper dbHelper = DBHelper();
 
-  Color getRandomColor() {
-    Random random = Random();
-    return backgroundColors[random.nextInt(backgroundColors.length)];
-  }
 
-  @override
+
+   @override
   void initState() {
-    getData();
-    dbHelper = DBHelper();
+     var homeController = Provider.of<HomeController>(context, listen: false);
+     homeController.getData();
+     print(homeController.filteredData.length);
     super.initState();
-  }
-
-  void getData() async {
-    data = await dbHelper.getCartData();
-    filteredData = data ;
-    debugPrint(filteredData.length.toString());
-    filteredData = sortedByModifiedTIme(filteredData);
-  }
-
-  void onSearch(String searchText){
-    setState(() {
-      filteredData = data.where((note) => note.subtitle!.toLowerCase().contains(
-          searchText.toLowerCase()) || note.title!.toLowerCase().contains(
-          searchText.toLowerCase())).toList();
-    });
-  }
-
-  List<Note> sortedByModifiedTIme(List<Note> notes){
-    setState(() {
-      if(sorted){
-        notes.sort((a, b) => a.date.compareTo(b.date));
-      }else{
-        notes.sort((a, b)=> b.date.compareTo(a.date));
-      }
-      sorted = !sorted;
-    });
-    return notes;
-  }
-
-
-  void deleteNote(int index) {
-    setState(() {
-      dbHelper.delete(filteredData[index].id);
-      filteredData.removeAt(index);
-      debugPrint(data.length.toString());
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    var homeController = Provider.of<HomeController>(context);
     return Scaffold(
       backgroundColor: Colors.grey.shade900,
       body: SafeArea(
@@ -82,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               HeaderPart(
                sortIconTap: (){
-                 sortedByModifiedTIme(filteredData);
+                 homeController.sortedByModifiedTIme(homeController.filteredData);
                },
              ),
               const SizedBox(
@@ -90,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SearchBarPart(
                   onChanged: (value){
-                    onSearch(value);
+                    homeController.onSearch(value);
                   }),
               Expanded(
                   child: FutureBuilder(
@@ -104,9 +66,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         } else {
                           return ListView.builder(
                               padding: const EdgeInsets.only(top: 30),
-                              itemCount: filteredData.length,
+                              itemCount: homeController.filteredData.length,
                               itemBuilder: (context, index) {
-                                if (filteredData.isEmpty) {
+                                if (homeController.filteredData.isEmpty) {
                                   return Container(
                                     height: 100,
                                       width: 100,
@@ -114,9 +76,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: const Text('no data here', style: TextStyle(color: Colors.white),));
                                 }else {
                                   return NoteDesign(
-                                      cardColor: getRandomColor(),
+                                      cardColor: homeController.getRandomColor(),
                                       cardOnTap: (){
-                                        Note note = data[index];
+                                        Note note = homeController.data[index];
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -125,12 +87,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       note: note,
                                                     )));
                                       },
-                                      title: filteredData[index].title.toString(),
-                                      subTitle: filteredData[index].subtitle.toString(),
+                                      title: homeController.filteredData[index].title.toString(),
+                                      subTitle: homeController.filteredData[index].subtitle.toString(),
                                       deleteWork: (){
-                                        deleteNote(index);
+                                        homeController.deleteNote(index);
                                       },
-                                      dateAbdTime: filteredData[index].date
+                                      dateAbdTime: homeController.filteredData[index].date
                                   );
                                 }
                               });
@@ -155,54 +117,54 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<dynamic> confirmDialog(BuildContext context) {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Colors.grey.shade900,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.grey,
-            ),
-            title: const Text(
-              "Are you sure you want to delete?",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white),
-            ),
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style:
-                  ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                  child: const SizedBox(
-                      width: 60,
-                      child: Text(
-                        "Yes",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white),
-                      )),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context, false);
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  child: const SizedBox(
-                      width: 60,
-                      child: Text(
-                        "no",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white),
-                      )),
-                )
-              ],
-            ),
-          );
-        });
-  }
+  // Future<dynamic> confirmDialog(BuildContext context) {
+  //   return showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           backgroundColor: Colors.grey.shade900,
+  //           icon: const Icon(
+  //             Icons.info,
+  //             color: Colors.grey,
+  //           ),
+  //           title: const Text(
+  //             "Are you sure you want to delete?",
+  //             textAlign: TextAlign.center,
+  //             style: TextStyle(color: Colors.white),
+  //           ),
+  //           content: Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //             children: [
+  //               ElevatedButton(
+  //                 onPressed: () {
+  //                   Navigator.pop(context);
+  //                 },
+  //                 style:
+  //                 ElevatedButton.styleFrom(backgroundColor: Colors.green),
+  //                 child: const SizedBox(
+  //                     width: 60,
+  //                     child: Text(
+  //                       "Yes",
+  //                       textAlign: TextAlign.center,
+  //                       style: TextStyle(color: Colors.white),
+  //                     )),
+  //               ),
+  //               ElevatedButton(
+  //                 onPressed: () {
+  //                   Navigator.pop(context, false);
+  //                 },
+  //                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+  //                 child: const SizedBox(
+  //                     width: 60,
+  //                     child: Text(
+  //                       "no",
+  //                       textAlign: TextAlign.center,
+  //                       style: TextStyle(color: Colors.white),
+  //                     )),
+  //               )
+  //             ],
+  //           ),
+  //         );
+  //       });
+  // }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:notes/src/controller/home_controller.dart';
 import 'package:notes/src/moduls/home/view/home.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,8 +12,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-        home: HomeScreen());
+    return MultiProvider(providers: [
+      ChangeNotifierProvider(create: (_)=> HomeController())
+    ], 
+      child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: HomeScreen()),
+    );
+      
   }
 }
