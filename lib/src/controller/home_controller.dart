@@ -23,7 +23,6 @@ class HomeController extends ChangeNotifier {
     _data = await _dbHelper.getCartData();
     _filteredData = _data;
     debugPrint(_filteredData.length.toString());
-    //_filteredData = sortedByModifiedTIme(_filteredData);
   }
 
   Color getRandomColor() {
@@ -42,13 +41,13 @@ class HomeController extends ChangeNotifier {
   }
 
   List<Note> sortedByModifiedTIme(List<Note> notes) {
-    if (_sorted) {
+    if (_sorted == true) {
       notes.sort((a, b) => a.date.compareTo(b.date));
     } else {
       notes.sort((a, b) => b.date.compareTo(a.date));
     }
-    _sorted = !_sorted;
     notifyListeners();
+    _sorted = !_sorted;
     return notes;
   }
 

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:notes/src/controller/home_controller.dart';
+import 'package:provider/provider.dart';
 
 class SearchBarPart extends StatelessWidget {
-  final dynamic onChanged;
-  const SearchBarPart({
-    super.key,
-    required this.onChanged
-  });
+
+  const SearchBarPart({super.key,});
 
   @override
   Widget build(BuildContext context) {
+    var homeController = Provider.of<HomeController>(context);
     return TextField(
-      onChanged: onChanged,
+      onChanged: (value){
+        homeController.onSearch(value);
+      } ,
       style: const TextStyle(fontSize: 16, color: Colors.white),
       decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
