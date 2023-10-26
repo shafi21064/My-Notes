@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
      var homeController = Provider.of<HomeController>(context, listen: false);
      homeController.getData();
+     homeController.sortedByModifiedTIme(homeController.filteredData);
      print(homeController.filteredData.length);
     super.initState();
   }

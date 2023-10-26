@@ -9,20 +9,21 @@ class HomeController extends ChangeNotifier {
   List<Note> _data = [];
   List<Note> _filteredData = [];
   DBHelper _dbHelper = DBHelper();
-  bool _sorted = false;
+  bool sorted = false;
 
 
 
   List get data => _data;
   List<Note> get filteredData => _filteredData;
   DBHelper get dbHelper => _dbHelper;
-  bool get sorted => _sorted;
+ // bool get sorted => _sorted;
 
 
    getData() async {
     _data = await _dbHelper.getCartData();
     _filteredData = _data;
     debugPrint(_filteredData.length.toString());
+    //_filteredData = sortedByModifiedTIme(_filteredData);
   }
 
   Color getRandomColor() {
@@ -41,13 +42,13 @@ class HomeController extends ChangeNotifier {
   }
 
   List<Note> sortedByModifiedTIme(List<Note> notes) {
-    if (_sorted == true) {
+    if (sorted) {
       notes.sort((a, b) => a.date.compareTo(b.date));
     } else {
       notes.sort((a, b) => b.date.compareTo(a.date));
     }
     notifyListeners();
-    _sorted = !_sorted;
+    sorted = !sorted;
     return notes;
   }
 
