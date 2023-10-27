@@ -10,7 +10,6 @@ import 'package:notes/src/moduls/home/local_widget/note_design.dart';
 import 'package:notes/src/moduls/home/local_widget/seach_bar.dart';
 import '../../../data/models/note_model.dart';
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -20,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Note> data = [];
-  List <Note>filteredData = [];
+  List<Note> filteredData = [];
   DBHelper dbHelper = DBHelper();
   bool sorted = false;
 
@@ -38,31 +37,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void getData() async {
     data = await dbHelper.getCartData();
-    filteredData = data ;
+    filteredData = data;
     debugPrint(filteredData.length.toString());
     filteredData = sortedByModifiedTIme(filteredData);
   }
 
-  void onSearch(String searchText){
+  void onSearch(String searchText) {
     setState(() {
-      filteredData = data.where((note) => note.subtitle!.toLowerCase().contains(
-          searchText.toLowerCase()) || note.title!.toLowerCase().contains(
-          searchText.toLowerCase())).toList();
+      filteredData = data
+          .where((note) =>
+              note.subtitle!.toLowerCase().contains(searchText.toLowerCase()) ||
+              note.title!.toLowerCase().contains(searchText.toLowerCase()))
+          .toList();
     });
   }
 
-  List<Note> sortedByModifiedTIme(List<Note> notes){
+  List<Note> sortedByModifiedTIme(List<Note> notes) {
     setState(() {
-      if(sorted){
+      if (sorted) {
         notes.sort((a, b) => a.date.compareTo(b.date));
-      }else{
-        notes.sort((a, b)=> b.date.compareTo(a.date));
+      } else {
+        notes.sort((a, b) => b.date.compareTo(a.date));
       }
       sorted = !sorted;
     });
     return notes;
   }
-
 
   deleteNote(int index) {
     setState(() {
@@ -71,7 +71,6 @@ class _HomeScreenState extends State<HomeScreen> {
       debugPrint(data.length.toString());
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -83,41 +82,47 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               HeaderPart(
-               sortIconTap: (){
-                 sortedByModifiedTIme(filteredData);
-               },
-             ),
+                sortIconTap: () {
+                  sortedByModifiedTIme(filteredData);
+                },
+              ),
               const SizedBox(
                 height: 20,
               ),
-              SearchBarPart(
-                  onChanged: (value){
-                    onSearch(value);
-                  }),
+              SearchBarPart(onChanged: (value) {
+                onSearch(value);
+              }),
               Expanded(
                   child: FutureBuilder(
                       future: dbHelper.getCartData(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child:CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 5,
-                          ) ,);
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 5,
+                            ),
+                          );
                         } else {
-                          return ListView.builder(
-                              padding: const EdgeInsets.only(top: 30),
-                              itemCount: filteredData.length,
-                              itemBuilder: (context, index) {
-                                if (filteredData.isEmpty) {
-                                  return Container(
-                                    height: 100,
-                                      width: 100,
-                                      color: Colors.white,
-                                      child: const Text('no data here', style: TextStyle(color: Colors.white),));
-                                }else {
+                          if (filteredData.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                'No notes added yet',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                  fontSize: 18
+                                ),
+                              ),
+                            );
+                          } else {
+                            return ListView.builder(
+                                padding: const EdgeInsets.only(top: 30),
+                                itemCount: filteredData.length,
+                                itemBuilder: (context, index) {
                                   return NoteDesign(
                                       cardColor: getRandomColor(),
-                                      cardOnTap: (){
+                                      cardOnTap: () {
                                         Note note = data[index];
                                         Navigator.push(
                                             context,
@@ -127,15 +132,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       note: note,
                                                     )));
                                       },
-                                      title: filteredData[index].title.toString(),
-                                      subTitle: filteredData[index].subtitle.toString(),
-                                      deleteWork: (){
+                                      title:
+                                          filteredData[index].title.toString(),
+                                      subTitle: filteredData[index]
+                                          .subtitle
+                                          .toString(),
+                                      deleteWork: () {
                                         confirmDialog(context, index);
                                       },
-                                      dateAbdTime: filteredData[index].date
-                                  );
-                                }
-                              });
+                                      dateAbdTime: filteredData[index].date);
+                                });
+                          }
                         }
                       })),
             ],
@@ -174,12 +181,12 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ElevatedButton(
-                  onPressed: (){
+                  onPressed: () {
                     deleteNote(index);
                     Navigator.pop(context);
                   },
                   style:
-                  ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                      ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   child: const SizedBox(
                       width: 60,
                       child: Text(
